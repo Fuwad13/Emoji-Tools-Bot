@@ -19,34 +19,94 @@ intital_extensions = [
     "cogs.emoji_cog"
 ]
 
+ALL_EXTENSIONS = [
+    "cogs.emojis",
+    "cogs.public_commands",
+    "cogs.info",
+    "cogs.emoji_sercher",
+    "cogs.utility"
+]
+
 #-----prefixes------
 
-
-def get_prefix(bot, message):
-
-    
-    prefixes = ['>', 'em', 'f']
+#will experiment about this later
+# def get_prefix(bot, message):
 
     
-    if not message.guild:
-        # Only allow ? to be used in DMs
-        return '>'
+#     prefixes = ['>', 'em', 'f']
 
-    # If we are in a guild, we allow for the user to mention us or use any of the prefixes in our list.
-    return commands.when_mentioned_or(*prefixes)(bot, message)
+    
+#     if not message.guild:
+#         # Only allow ? to be used in DMs
+#         return '>'
+
+#     # If we are in a guild, we allow for the user to mention us or use any of the prefixes in our list.
+#     return commands.when_mentioned_or(*prefixes)(bot, message)
 
 #--------Bot constructor------------------
 
 intents = discord.Intents(messages=True, guilds=True,
                           reactions=True, members=True, presences=True)
 
-bot = commands.Bot(command_prefix=get_prefix, intents=intents)
+bot = commands.Bot(command_prefix=">", intents=intents)
 
 
 if __name__ == "__main__":
   for e in intital_extensions:
     bot.load_extension(e)
 
+# dev essential commands 
+
+
+@bot.command(aliases=['lc'])
+@commands.is_owner()
+async def _loadcog(ctx, cogname: str):
+    try:
+        tick = bot.get_emoji(880695423516430336)
+
+        bot.load_extension(cogname)
+        em = discord.Embed(
+            title=f"Cogs Loader", description=f"{tick} Successfully Loaded the cog `{cogname}`", timestamp=ctx.message.created_at)
+        await ctx.channel.send(embed=em)
+    except Exception as e:
+        await ctx.channel.send(e)
+
+
+@_loadcog.error
+async def _loadcogerror(ctx, error):
+    await ctx.channel.send(f"`Error`: `{error}`")
+
+
+@bot.command(aliases=["uc"])
+@commands.is_owner()
+async def _unloadcog(ctx, cogname: str):
+    try:
+        tick = bot.get_emoji(880695423516430336)
+
+        bot.unload_extension(cogname)
+        em = discord.Embed(
+            title=f"Cogs Unloader", description=f"{tick} Successfully unloaded the cog `{cogname}`", timestamp=ctx.message.created_at)
+        await ctx.channel.send(embed=em)
+    except Exception as e:
+        await ctx.channel.send(e)
+
+
+@_unloadcog.error
+async def _unloadcogerror(ctx, error):
+    await ctx.channel.send(f"`Error`: `{error}`")
+
+@bot.command(aliases = ["ra", "rela"])
+@commands.is_owner()
+async def reloadall(ctx):
+  success_l = []
+  for e in ALL_EXTENSIONS:
+    try:
+      bot.reload_extension(e)
+      success_l.append(e)
+    except commands.ExtensionNotLoaded:
+      bot.load_extension(e)
+
+#-------------------------------------------------------------dev cmds end
 
 
 bot.remove_command('help')
@@ -787,42 +847,7 @@ async def devserverinfo(ctx, sid):
         await ctx.send(f"**{server.name}**\nmembers :{server.member_count}\nemojis: {len(server.emojis)}")
 
 
-@bot.command(aliases=['lc'])
-@commands.is_owner()
-async def _loadcog(ctx, cogname: str):
-    try:
-        tick = bot.get_emoji(880695423516430336)
 
-        bot.load_extension(cogname)
-        em = discord.Embed(
-            title=f"Cogs Loader", description=f"{tick} Successfully Loaded the cog `{cogname}`", timestamp=ctx.message.created_at)
-        await ctx.channel.send(embed=em)
-    except Exception as e:
-        await ctx.channel.send(e)
-
-
-@_loadcog.error
-async def _loadcogerror(ctx, error):
-    await ctx.channel.send(f"`Error`: {error}")
-
-
-@bot.command(aliases=["uc"])
-@commands.is_owner()
-async def _unloadcog(ctx, cogname: str):
-    try:
-        tick = bot.get_emoji(880695423516430336)
-
-        bot.unload_extension(cogname)
-        em = discord.Embed(
-            title=f"Cogs Loader", description=f"{tick} Successfully unloaded the cog `{cogname}`", timestamp=ctx.message.created_at)
-        await ctx.channel.send(embed=em)
-    except Exception as e:
-        await ctx.channel.send(e)
-
-
-@_unloadcog.error
-async def _unloadcogerror(ctx, error):
-    await ctx.channel.send(f"`Error`: {error}")
 
 
 @bot.command(aliases=['dsl'])
