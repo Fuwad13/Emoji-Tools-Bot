@@ -11,19 +11,43 @@ load_dotenv()  # take environment variables from .env.
 
 TOKEN = os.getenv("TOKEN")
 
-
-
-
+#------------ constants---------------------
 COLL_CHANNEL = 885013467587825686
+UPTIME_DICT = {"uts": ""}
+#------------extensions --------------------------
+intital_extensions = [
+    "cogs.emoji_cog"
+]
+
+#-----prefixes------
+
+
+def get_prefix(bot, message):
+
+    
+    prefixes = ['>', 'em', 'f']
+
+    
+    if not message.guild:
+        # Only allow ? to be used in DMs
+        return '>'
+
+    # If we are in a guild, we allow for the user to mention us or use any of the prefixes in our list.
+    return commands.when_mentioned_or(*prefixes)(bot, message)
+
+#--------Bot constructor------------------
 
 intents = discord.Intents(messages=True, guilds=True,
                           reactions=True, members=True, presences=True)
 
-bot = commands.Bot(command_prefix='et', intents=intents)
-# status = cycle(
-# ['All your needs for managing emojis is here!! ', 'Version 1.0'])
+bot = commands.Bot(command_prefix=get_prefix, intents=intents)
 
-UPTIME_DICT = {"uts": ""}
+
+if __name__ == "__main__":
+  for e in intital_extensions:
+    bot.load_extension(e)
+
+
 
 bot.remove_command('help')
 # help_pages
@@ -812,4 +836,4 @@ async def devserverleave(ctx, sid):
         await server.leave()
         await ctx.send(f"left the server {name}")
 
-bot.run(token)
+bot.run(TOKEN)
