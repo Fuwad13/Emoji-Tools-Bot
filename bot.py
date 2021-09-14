@@ -1,4 +1,5 @@
 #--------imports-----------------
+from logging import info
 import time, aiohttp, discord, random, asyncio, typing,os
 from discord.ext import commands, tasks
 from itertools import cycle
@@ -16,14 +17,14 @@ COLL_CHANNEL = 885013467587825686
 UPTIME_DICT = {"uts": ""}
 #------------extensions --------------------------
 intital_extensions = [
-    "cogs.emoji_cog"
+    "cogs.emojis"
 ]
 
 ALL_EXTENSIONS = [
     "cogs.emojis",
     "cogs.public_commands",
     "cogs.info",
-    "cogs.emoji_sercher",
+    "cogs.emoji_searcher",
     "cogs.utility"
 ]
 
@@ -63,8 +64,9 @@ if __name__ == "__main__":
 async def _loadcog(ctx, cogname: str):
     try:
         tick = bot.get_emoji(880695423516430336)
+        cname = f"{cogname}"
 
-        bot.load_extension(cogname)
+        bot.load_extension(cname)
         em = discord.Embed(
             title=f"Cogs Loader", description=f"{tick} Successfully Loaded the cog `{cogname}`", timestamp=ctx.message.created_at)
         await ctx.channel.send(embed=em)
@@ -80,10 +82,12 @@ async def _loadcogerror(ctx, error):
 @bot.command(aliases=["uc"])
 @commands.is_owner()
 async def _unloadcog(ctx, cogname: str):
+
     try:
         tick = bot.get_emoji(880695423516430336)
+        cname = f"{cogname}"
 
-        bot.unload_extension(cogname)
+        bot.unload_extension(cname)
         em = discord.Embed(
             title=f"Cogs Unloader", description=f"{tick} Successfully unloaded the cog `{cogname}`", timestamp=ctx.message.created_at)
         await ctx.channel.send(embed=em)
@@ -98,13 +102,41 @@ async def _unloadcogerror(ctx, error):
 @bot.command(aliases = ["ra", "rela"])
 @commands.is_owner()
 async def reloadall(ctx):
-  success_l = []
+  success_s = ""
+  tick = bot.get_emoji(880695423516430336)
   for e in ALL_EXTENSIONS:
     try:
       bot.reload_extension(e)
-      success_l.append(e)
+      tt = f"{str(tick)} `{e.split('.')[1]}`\n"
+      success_s +=tt
     except commands.ExtensionNotLoaded:
       bot.load_extension(e)
+      tt = f"{str(tick)} `{e.split('.')[1]}`\n"
+      success_s += tt
+  em = discord.Embed(title = "Success!", description = f"These cogs were loaded successfully!\n{success_s}")
+  await ctx.channel.send(embed = em)
+
+@reloadall.error
+async def reloadallerror(ctx, error):
+  await ctx.channel.send(f"`ERROR` : `{error}`")
+
+@bot.command(aliases = ["rc", "r"])
+@commands.is_owner()
+async def rreloadcog(ctx, cogname: str):
+  try:
+    tick = bot.get_emoji(880695423516430336)
+    cname = f"{cogname}"
+    bot.reload_extension(cname)
+    em = discord.Embed(
+        title=f"Cogs Reloader", description=f"{tick} Successfully reloaded the cog `{cogname}`", timestamp=ctx.message.created_at)
+    await ctx.channel.send(embed=em)
+  except commands.ExtensionNotLoaded:
+      await ctx.channel.send("This cog was not loaded")
+
+
+@rreloadcog.error
+async def reloaderror(ctx, error):
+  await ctx.channel.send(f"`ERROR` : `{error}`")
 
 #-------------------------------------------------------------dev cmds end
 
@@ -176,6 +208,8 @@ async def change_status():
 @bot.command()
 async def vote(ctx):
     await ctx.channel.send("Vote me to support and encourage my developer!\nlink: https://top.gg/bot/875861419801862165/vote/")
+    time.sleep(5)
+    
 
 
 @bot.command()
