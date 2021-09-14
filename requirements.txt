@@ -1,4 +1,5 @@
-discord.py
+git+https://github.com/Rapptz/discord.py
 aiohttp
 asyncio
 jishaku
+python-dotenv
