@@ -1,14 +1,15 @@
 import discord
 import aiohttp
 from bs4 import BeautifulSoup
-from discord.ext import commands, menus
+from discord.ext import commands
 import asyncio
 import time
-
+from utils import buttons_and_view as bv
 
 class EmojiSearcher(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        
 
     async def get_url(self, url):
         async with aiohttp.ClientSession() as session:
@@ -33,60 +34,64 @@ class EmojiSearcher(commands.Cog):
 
         return final_list
 
-    @commands.command()
+    @commands.command(name="search", aliases=["find", "srch"], brief="Searches for emojis by the name provided", help="Search for an emoji by name from online. Choose from the search result to add to your server", description="hi")
     @commands.has_permissions(manage_emojis=True)
     @commands.bot_has_permissions(manage_emojis=True)
     async def search(self, ctx, *, name: str):
         start_time = time.time()
         x = name.replace(" ", "+")
         el = await self.get_emojis(x)
-        em_sr = discord.Embed(title="Search Results......")
+        # em_sr = discord.Embed(title="Search Results......")
         end_time = time.time()
-        msg = await ctx.send(f"{end_time - start_time}", embed=em_sr)
-        buttons = [u"\u23EA", u"\u2B05", u"\u27A1", u"\u23E9"]
-        current = 0
-        for button in buttons:
-            await msg.add_reaction(button)
-        em_enam = el[current].split('#')[0]
-        ur = el[current].split('#')[1]
-        embe = discord.Embed(
-            title=f"{em_enam}", description=f"[link]({ur})", color=0x90FF90, timestamp=msg.created_at)
-        embe.set_image(url=ur)
-        await msg.edit(embed=embe)
-        while True:
-            try:
-                reaction, user = await self.bot.wait_for("reaction_add", check=lambda reaction, user: user == ctx.author and reaction.emoji in buttons and reaction.message == msg, timeout=60.0)
-            except asyncio.TimeoutError:
-                for button in buttons:
-                    await msg.remove_reaction(button, self.bot.user)
-            else:
-                previous_page = current
-                if reaction.emoji == u"\u23EA":
-                    current = 0
+        formatter = bv.EmojiLinkSource(el)
+        menu = bv.MyMenuPages(formatter, delete_message_after=True)
+        await menu.start(ctx)
+        # msg = await ctx.send(f"{end_time - start_time}", embed=em_sr)
+        # buttons = [u"\u23EA", u"\u2B05", u"\u27A1", u"\u23E9"]
+        # current = 0
+        # for button in buttons:
+        #     await msg.add_reaction(button)
+        # em_enam = el[current].split('#')[0]
+        # ur = el[current].split('#')[1]
+        # embe = discord.Embed(
+        #     title=f"{em_enam}", description=f"[link]({ur})", color=0x90FF90, timestamp=msg.created_at)
+        # embe.set_image(url=ur)
+        # await msg.edit(embed=embe)
+        # while True:
+        #     try:
+        #         reaction, user = await self.bot.wait_for("reaction_add", check=lambda reaction, user: user == ctx.author and reaction.emoji in buttons and reaction.message == msg, timeout=60.0)
+        #     except asyncio.TimeoutError:
+        #         for button in buttons:
+        #             await msg.remove_reaction(button, self.bot.user)
+        #     else:
+        #         previous_page = current
+        #         if reaction.emoji == u"\u23EA":
+        #             current = 0
 
-                elif reaction.emoji == u"\u2B05":
-                    if current > 0:
-                        current -= 1
+        #         elif reaction.emoji == u"\u2B05":
+        #             if current > 0:
+        #                 current -= 1
 
-                elif reaction.emoji == u"\u27A1":
-                    if current < len(el)-1:
-                        current += 1
+        #         elif reaction.emoji == u"\u27A1":
+        #             if current < len(el)-1:
+        #                 current += 1
 
-                elif reaction.emoji == u"\u23E9":
-                    current = len(el)-1
+        #         elif reaction.emoji == u"\u23E9":
+        #             current = len(el)-1
 
-                if current != previous_page:
-                    em_ename = el[current].split('#')[0]
-                    url = el[current].split('#')[1]
-                    async with aiohttp.ClientSession() as ss:
-                        async with ss.get(url) as ress:
-                            r = ress
-                    n_url = r.url
-                    embed = discord.Embed(
-                        title=f"{em_ename}", description=f"[link]({url})", color=0x90FF90, timestamp=msg.created_at)
-                    embed.set_image(url=n_url)
-                    await msg.edit(embed=embed)
+        #         if current != previous_page:
+        #             em_ename = el[current].split('#')[0]
+        #             url = el[current].split('#')[1]
+        #             async with aiohttp.ClientSession() as ss:
+        #                 async with ss.get(url) as ress:
+        #                     r = ress
+        #             n_url = r.url
+        #             embed = discord.Embed(
+        #                 title=f"{em_ename}", description=f"[link]({url})", color=0x90FF90, timestamp=msg.created_at)
+        #             embed.set_image(url=n_url)
+        #             await msg.edit(embed=embed)
 
 
 def setup(bot):
     bot.add_cog(EmojiSearcher(bot))
+    
