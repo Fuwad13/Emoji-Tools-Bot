@@ -10,7 +10,7 @@ import os
 from discord.ext import commands, tasks
 from discord.ext.commands import BucketType
 from dotenv import load_dotenv
-from utils import buttons_and_view as bv
+from utils import help
 
 load_dotenv()  # take environment variables from .env.
 
@@ -22,22 +22,22 @@ TOKEN = os.getenv("TOKEN")
 COLL_CHANNEL = 885013467587825686
 UPTIME_DICT = {"uts": ""}
 # ------------extensions --------------------------
+#emoji searcher unstable
 intital_extensions = [
     "cogs.emojis",
-    "jishaku",
     "cogs.public_commands",
     "cogs.info",
-    "cogs.emoji_searcher",
-    "cogs.utility"
+    "cogs.utility",
+    "jishaku"
 ]
 
 ALL_EXTENSIONS = [
     "cogs.emojis",
-	"jishaku",
+    "cogs.emoji_searcher",
     "cogs.public_commands",
     "cogs.info",
-    "cogs.emoji_searcher",
-    "cogs.utility"
+    "cogs.utility",
+    "jishaku"
 ]
 
 # -----prefixes------
@@ -60,7 +60,7 @@ def get_prefix(bot, message):
 intents = discord.Intents(messages=True, guilds=True,
                           reactions=True)
 
-bot = commands.AutoShardedBot(command_prefix=get_prefix, intents=intents)
+bot = commands.AutoShardedBot(command_prefix=get_prefix, intents=intents, case_insensitive = True)
 
 
 if __name__ == "__main__":
@@ -73,7 +73,8 @@ if __name__ == "__main__":
 @bot.event
 async def on_ready():
     UPTIME_DICT["uts"] = str(int(time.time()))
-    await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.listening, name=f"ethelp  |  @Emoji Tools help"))
+    bot.uptime = int(UPTIME_DICT["uts"])
+    await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.listening, name=f"ethelp  |  {len(bot.users)} users"))
     print(f'logged in as {bot.user}')
     bot.get_command("jishaku").hidden = True
 
@@ -85,7 +86,7 @@ async def on_guild_join(guild):
     ec = len(guild.emojis)
     mc = guild.member_count
     em = discord.Embed(
-        title=f"Joined {name} ({idd})", description=f"emoji count: {ec}\nmember count: {mc}", color=0xFF0000)
+        title=f"Joined {name} ({idd})", description=f"emoji count: {ec}\nmember count: {mc}", color=0x2F3136)
     em.set_footer(text=":", icon_url=guild.icon_url)
     channel = bot.get_channel(878420596168462386)
     await channel.send(embed=em)
@@ -117,7 +118,7 @@ async def _loadcog(ctx, cogname: str):
 
         bot.load_extension(cname)
         em = discord.Embed(
-            title=f"Cogs Loader", description=f"{tick} Successfully Loaded the cog `{cogname}`", timestamp=ctx.message.created_at)
+            title=f"Cogs Loader", description=f"{tick} Successfully Loaded the cog `{cogname}`", timestamp=ctx.message.created_at, color=0x2F3136)
         await ctx.channel.send(embed=em)
     except Exception as e:
         await ctx.channel.send(e)
@@ -138,7 +139,7 @@ async def _unloadcog(ctx, cogname: str):
 
         bot.unload_extension(cname)
         em = discord.Embed(
-            title=f"Cogs Unloader", description=f"{tick} Successfully unloaded the cog `{cogname}`", timestamp=ctx.message.created_at)
+            title=f"Cogs Unloader", description=f"{tick} Successfully unloaded the cog `{cogname}`", timestamp=ctx.message.created_at, color=0x2F3136)
         await ctx.channel.send(embed=em)
     except Exception as e:
         await ctx.channel.send(e)
@@ -164,8 +165,10 @@ async def reloadall(ctx):
             tt = f"{str(tick)} `{e.split('cogs.')[-1]}`\n"
             success_s += tt
     em = discord.Embed(
-        title="Success!", description=f"These cogs were loaded successfully!\n{success_s}")
+        title="Success!", description=f"These cogs were loaded successfully!\n{success_s}", color=0x2F3136)
     await ctx.channel.send(embed=em)
+    bot.get_command("jishaku").hidden = True
+
 
 
 @reloadall.error
@@ -192,58 +195,16 @@ async def reloaderror(ctx, error):
     await ctx.channel.send(f"`ERROR` : `{error}`")
 
 
+@bot.command(name = "hidecmd", hidden = True)
+@commands.is_owner()
+async def _hidecmd(ctx):
+    bot.get_command("jishaku").hidden = True
+    await ctx.send("Done.. shhhh")
+
+
 # ----------Help Command ------------------
 
-class MyHelpCommand(commands.MinimalHelpCommand):
-    def __init__(self):
-
-        super().__init__(
-            command_attrs={
-                'cooldown': commands.CooldownMapping.from_cooldown(1, 3.0, commands.BucketType.member),
-                'help': 'Shows help about the bot, a command, or a category',
-                'aliases': ["commands", "helo", "hel"],
-            }, verify_checks=False, show_hidden=False
-        )
-
-    async def on_help_command_error(self, ctx, error):
-        if isinstance(error, commands.CommandInvokeError):
-            # Ignore missing permission errors
-            if isinstance(error.original, discord.HTTPException) and error.original.code == 50013:
-                return
-
-            await ctx.send(str(error.original))
-
-    def get_command_signature(self, command):
-        return f"**{self.context.clean_prefix}{command.qualified_name} {command.signature}**\n`{command.brief}`"
-
-    async def send_bot_help(self, mapping):
-        embed1 = discord.Embed(title="Help", color=0x90EE90)
-        embed2 = discord.Embed(title="Help", color=0x90EE90)
-        if self.context.author.id == 428812756456570882:
-            self.show_hidden = True
-		
-
-        for cog, commands in mapping.items():
-
-            filtered = await self.filter_commands(commands)
-            command_signatures = [
-                self.get_command_signature(c) for c in filtered]
-
-            for cmd in command_signatures:
-                embed1.add_field(
-                    name=f"{cmd.split(f'{self.context.clean_prefix}')[1].split(' ')[0]}", value=f"{cmd}")
-
-        channel = self.get_destination()
-        view = bv.HelpPageButton(self.context, embed1, embed2)
-
-        msg = await channel.send(embed=embed1,view = view)
-        
-        
-
-        
-
-
-bot.help_command = MyHelpCommand()
+bot.help_command = help.MyHelpCommand()
 
 
 

@@ -12,8 +12,11 @@ class HelpPageButton(discord.ui.View):
         self.page1 = emb1
         self.page2 = emb2
         self.ctx = ctx
-        self.add_item(discord.ui.Button(label="Invite me", style=discord.ButtonStyle.url,
+        self.add_item(discord.ui.Button(label="Invite", emoji='<:website:877638561501950003>', style=discord.ButtonStyle.green,
                                         url="https://discord.com/api/oauth2/authorize?client_id=875861419801862165&permissions=1074121792&redirect_uri=https%3A%2F%2Fdiscord.com%2Fapi%2Foauth2%2Fauthorize%3Fclient_id%3D875861419801862165%26permissions%3D1074064448%26scope%3Dbot&scope=bot%20applications.commands"))
+
+        self.add_item(discord.ui.Button(label="Vote", emoji='<:discordbotlist:880695425710063646>', style=discord.ButtonStyle.green,
+                                        url="https://top.gg/bot/875861419801862165/vote/"))
 
     async def interaction_check(self, intr):
         if not self.ctx.author == intr.user:
@@ -23,22 +26,29 @@ class HelpPageButton(discord.ui.View):
     # async def on_error(self, error, item, interaction):
     #     await interaction.response.send_message(f"Only {self.ctx.author.mention} can use this button", ephemeral=True)
 
-    @discord.ui.button(label="Page 1", style=discord.ButtonStyle.green)
+    @discord.ui.button(emoji='\U000025c0', style=discord.ButtonStyle.blurple)
     async def page_one(self, button: discord.ui.Button, interaction: discord.Interaction):
         button.disabled = True
+        self.page_two.disabled = False
 
-        await interaction.message.edit(embed=self.page1)
+        await interaction.message.edit(embed=self.page1, view = self)
         
         
-
-    @discord.ui.button(label="Page 2", style=discord.ButtonStyle.green)
+    @discord.ui.button(emoji='\U000025b6', style=discord.ButtonStyle.blurple)
     async def page_two(self, button: discord.ui.Button, interaction: discord.Interaction):
-        await interaction.message.edit(embed=self.page2)
+
+        button.disabled = True
+        self.page_one.disabled = False
+        await interaction.message.edit(embed=self.page2, view = self)
+
+    # async def on_timeout(self):
+    #   for item in self.children:
+    #     item.disabled = True
 
     
 class MyMenuPages(ui.View, menus.MenuPages):
     def __init__(self, source, *, delete_message_after=False):
-        super().__init__(timeout=60)
+        super().__init__(timeout=120)
         self._source = source
         self.current_page = 0
         self.ctx = None
@@ -61,6 +71,9 @@ class MyMenuPages(ui.View, menus.MenuPages):
     async def interaction_check(self, interaction):
         """Only allow the author that invoke the command to be able to use the interaction"""
         return interaction.user == self.ctx.author
+
+    
+    
 
     @ui.button(emoji='<:before_fast_check:754948796139569224>', style=discord.ButtonStyle.blurple)
     async def first_page(self, button, interaction):
@@ -115,3 +128,13 @@ class EmojiLinkSource(menus.ListPageSource):
         embed.set_footer(
             text=f"Requested by {author}", icon_url=author.avatar.url)
         return embed
+
+
+
+class DeleteButton(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout= 60)
+
+    @ui.button(emoji='<:redtick:880695424510476288>', style=discord.ButtonStyle.red)
+    async def on_deletee(self, button, interaction):
+        await self.message.delete()
