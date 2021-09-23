@@ -87,7 +87,10 @@ async def on_guild_join(guild):
     mc = guild.member_count
     em = discord.Embed(
         title=f"Joined {name} ({idd})", description=f"emoji count: {ec}\nmember count: {mc}", color=0x2F3136)
-    em.set_footer(text=":", icon_url=guild.icon)
+    try:
+        em.set_footer(text=f"{name}", icon_url=guild.icon)
+    except:
+        pass
     channel = bot.get_channel(878420596168462386)
     await channel.send(embed=em)
     channels = await guild.fetch_channels()
