@@ -52,6 +52,8 @@ class EmojiSearcher(commands.Cog):
     async def search_error(self, ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
             await ctx.send(f"This command is on cooldown, retry after `{error.retry_after:.2f}` seconds")
+        elif isinstance(error, IndexError):
+            await ctx.send("Couldn't find anything , sorry")
 
         else :
             await ctx.send(f"Something went wrong `{error}`")
