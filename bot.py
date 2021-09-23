@@ -26,7 +26,7 @@ UPTIME_DICT = {"uts": ""}
 intital_extensions = [
     "cogs.emojis",
     "cogs.public_commands",
-    "cogs.info",
+    "cogs.error_handler",
     "cogs.utility",
     "jishaku"
 ]
@@ -35,7 +35,7 @@ ALL_EXTENSIONS = [
     "cogs.emojis",
     "cogs.emoji_searcher",
     "cogs.public_commands",
-    "cogs.info",
+    "cogs.error_handler",
     "cogs.utility",
     "jishaku"
 ]
@@ -87,7 +87,7 @@ async def on_guild_join(guild):
     mc = guild.member_count
     em = discord.Embed(
         title=f"Joined {name} ({idd})", description=f"emoji count: {ec}\nmember count: {mc}", color=0x2F3136)
-    em.set_footer(text=":", icon_url=guild.icon_url)
+    em.set_footer(text=":", icon_url=guild.icon)
     channel = bot.get_channel(878420596168462386)
     await channel.send(embed=em)
     channels = await guild.fetch_channels()

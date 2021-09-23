@@ -36,6 +36,7 @@ class EmojiSearcher(commands.Cog):
 
     @commands.command(name="search", aliases=["find", "srch"], brief="Searches for emojis by the name provided", help="Search for an emoji by name from online. Choose from the search result to add to your server", description="hi")
     @commands.guild_only()
+    @commands.cooldown(1,15, type = commands.BucketType.user)
     
     async def search(self, ctx, *, name: str):
         start_time = time.time()
@@ -46,6 +47,14 @@ class EmojiSearcher(commands.Cog):
         formatter = bv.EmojiLinkSource(el)
         menu = bv.MyMenuPages(formatter, delete_message_after=True)
         await menu.start(ctx)
+
+    @search.error
+    async def search_error(self, ctx, error):
+        if isinstance(error, commands.CommandOnCooldown):
+            await ctx.send(f"This command is on cooldown, retry after `{error.retry_after:.2f}` seconds")
+
+        else :
+            await ctx.send(f"Something went wrong `{error}`")
         
 
 

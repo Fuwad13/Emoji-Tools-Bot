@@ -3,8 +3,11 @@ from discord.ext import commands
 import aiohttp
 import typing
 from discord import ui
+from discord.ext.commands.cooldowns import BucketType
+from discord.ext.commands.errors import CommandOnCooldown
 from utils import buttons_and_view as bv
-
+import random
+import asyncio
 
 class EmojiManager(commands.Cog):
     def __init__(self, bot):
@@ -14,6 +17,7 @@ class EmojiManager(commands.Cog):
     @commands.guild_only()
     @commands.bot_has_permissions(manage_emojis=True)
     @commands.has_permissions(manage_emojis=True)
+    @commands.cooldown(1, 3, type=BucketType.user)
     async def add(self, ctx, emoji: discord.PartialEmoji, *, name: str = None):
 
         url = f"{emoji.url}"
@@ -42,8 +46,10 @@ class EmojiManager(commands.Cog):
             await ctx.channel.send(f"{bot.user.mention} needs `Manage Emojis` permission to execute this command!")
         elif isinstance(error, discord.ext.commands.errors.MissingRequiredArgument):
             await ctx.channel.send("**Please put an emoji after **`etadd`\n example: `etadd <emoji> emoji_name`(name is optional)")
+        elif isinstance(error, discord.ext.commands.CommandOnCooldown):
+            await ctx.channel.send(f"This command has a cooldown of 3 sec. Please try again after `{error.retry_after:.2f}` seconds")
         else:
-            await ctx.channel.send(f"`ERROR`: {error}")
+            await ctx.channel.send(f"`ERROR`: {error}", view = bv.SupportServer())
 
     @commands.command(name="addurl", aliases=["addlink"], brief="Adds a custom emoji to the server from the provided discord attachment url(image/gif)", help="Add/create a custom emoji from a discord attachment url.Copy the attachment url(must be a discord attachment) and use in the command.", description="Add emoji from an attachment url. The url must be a **discord attachment** url. Using tenor/giphy links won't work")
     @commands.guild_only()
@@ -111,53 +117,61 @@ class EmojiManager(commands.Cog):
         elif isinstance(error, discord.ext.commands.CommandError):
             await ctx.channel.send(f"`ERROR` : {error}")
 
-    @commands.command(name="addmany", aliases=["addm", "createmany"], brief="Adds multiple emojis at once! Currently upto 5 emojis at once", help="Add multiple emojis at once in your server. Currently it can add 5 emojis at once to prevent rate-limits of discord!", description="This command can be used to add emojis at a faster rate. It has a cooldown of 10 seconds though (to prevent the bot from being rate-limited)")
+    @commands.command(name="addmany", aliases=["addm", "createmany"], brief="Adds multiple emojis at once! Currently upto 5 emojis at once[cooldown = 10 sec.]", help="Add multiple emojis at once in your server. Currently it can add 5 emojis at once to prevent rate-limits of discord![cooldown = 10 sec]", description="This command can be used to add emojis at a faster rate. It has a cooldown of 10 seconds though (to prevent the bot from being rate-limited)")
     @commands.guild_only()
     @commands.bot_has_permissions(manage_emojis=True)
     @commands.has_permissions(manage_emojis=True)
     @commands.cooldown(1, 10, type=commands.BucketType.guild)
     async def addmany(self, ctx, emojis: commands.Greedy[discord.PartialEmoji]):
-        async with ctx.channel.typing():
-            emojilist = []
-            c = 0
-            for x in emojis:
-                url = f"{x.url}"
+        
+        if emojis:
+            async with ctx.channel.typing():
+                emojilist = []
+                c = 0
+                for x in emojis:
+                    url = f"{x.url}"
 
-                naam = x.name
+                    naam = x.name
 
-                async with aiohttp.ClientSession() as session:
-                    async with session.get(url) as response:
-                        img = await response.read()
-                cm = await ctx.guild.create_custom_emoji(name=naam, image=img)
-                x = str(cm)
-                emojilist.append(x)
-                await asyncio.sleep(1)
-                c += 1
-                if c == 5:
-                    break
-            if len(emojilist) != 0:
-                await ctx.channel.send(f"Successfully created these emojis {emojilist}")
-                # colch = self.bot.get_channel(885013467587825686)
-                # await colch.send(f"Added these  {emojilist} in server :{ctx.guild.name} with id {ctx.guild.id}")
-            elif len(emojilist) == 0:
-                await ctx.channel.send(f"Hey, maybe you forgot to put spaces between the emojis!Try again!!")
+                    async with aiohttp.ClientSession() as session:
+                        async with session.get(url) as response:
+                            img = await response.read()
+                    cm = await ctx.guild.create_custom_emoji(name=naam, image=img)
+                    x = str(cm)
+                    emojilist.append(x)
+                    await asyncio.sleep(1)
+                    c += 1
+                    if c == 5:
+                        break
+                if len(emojilist) != 0:
+                    await ctx.channel.send(f"Successfully created these emojis {emojilist}")
+                    # colch = self.bot.get_channel(885013467587825686)
+                    # await colch.send(f"Added these  {emojilist} in server :{ctx.guild.name} with id {ctx.guild.id}")
+        elif not emojis:
+            await ctx.send("`Something went wrong, Did you use the command correctly?`\ntype `ethelp addmany` to learn more")
+            
 
     @addmany.error
     async def addmany_error(self, ctx, error):
         if isinstance(error, discord.ext.commands.NoPrivateMessage):
             await ctx.channel.send("**This command is only executable in server channels!!**")
-        elif isinstance(error, discord.ext.commands.errors.MissingPermissions):
+        elif isinstance(error, discord.ext.commands.MissingPermissions):
             await ctx.channel.send(f"{ctx.author.mention} You need the `manage emojis` permission to execute this command!")
         elif isinstance(error, discord.ext.commands.BotMissingPermissions):
             await ctx.channel.send(f"{self.bot.user.mention} needs `Manage Emojis` permission to execute this command!")
         elif isinstance(error, discord.ext.commands.CommandOnCooldown):
-            await ctx.channel.send(f"This command is on cooldown (to prevent the bot from being rate-limited)\n Please retry after {error.retry_after:.2f} seconds")
-        elif isinstance(error, discord.ext.commands.errors.BadArgument):
+            await ctx.channel.send(f"This command is on cooldown `(to prevent the bot from being rate-limited)`\n Please retry after {error.retry_after:.2f} seconds")
+        elif isinstance(error, discord.ext.commands.BadArgument):
             await ctx.channel.send("**Please put emojis after** `etaddmany`")
-        elif isinstance(error, discord.ext.commands.errors.MissingRequiredArgument):
+        elif isinstance(error, discord.ext.commands.MissingRequiredArgument):
             await ctx.channel.send("**Please put emojis after ** `etaddmany`")
         else:
-            await ctx.channel.send(f"`ERROR:` {error}")
+            view = ui.View()
+            view.add_item(ui.Button(label="Support server",
+                          emoji="<:Emoji_tools:883769038600294421>", style=discord.ButtonStyle.url, url="https://discord.gg/zZPf2BUkHm"))
+            
+            await ctx.channel.send(f"**`ERROR:`** - {error}\n Report in the support server if you think this is a bug.", view=view)
+            
 
     @commands.command(name="delete", aliases=["remove", "del", "rem"], brief="Deletes an emoji from server.", help="Delete a custom emoji using this command", description="Use this command cautiously as this can't be undone.")
     @commands.guild_only()
@@ -181,7 +195,7 @@ class EmojiManager(commands.Cog):
         elif isinstance(error, discord.ext.commands.errors.MissingRequiredArgument):
             await ctx.channel.send("**Please put an emoji after ** `etdeletemany` to delete!")
         else:
-            await ctx.send(f"Error: `{error}`")
+            await ctx.send(f"Error: `{error}`", view = bv.SupportServer())
 
     @commands.command(name="deletemany", aliases=["delm", "removemany", "removem"], brief="Deletes multiple emojis at once(maximum 5 emojis per command)", help="Deletes multiple emojis at once. You must pass the emojis that are in this guild and put spaces between the emojis.", description="This command can be useful when you want to delete multiple emojis from your server. You can delete upto 5 emojis per command and this command has a cooldown of 10 seconds.**Make sure you put spaces between the emojis**")
     @commands.guild_only()
@@ -243,7 +257,7 @@ class EmojiManager(commands.Cog):
         elif isinstance(error, discord.ext.commands.errors.MissingRequiredArgument):
             await ctx.channel.send("**Please put an emoji and the name after **`etrename`** to rename**\nExample: `etrename <emoji> new_name `")
         else:
-            await ctx.send(f"Error: `{error}`")
+            await ctx.send(f"Error: `{error}`", view = bv.SupportServer())
 
     @commands.command(name="lock", aliases=["restrict"], brief="Locks an emoji for everyone except the roles mentioned.(admins only command)", help="Locks an emoji for everyone except the roles mentioned. Make sure you mention your role so you can access the emoji and unlock it later. Useful for nsfw emojis to hide.", description="This command can be used to hide/ lock any emojis from everyone except the roles mentioned when locking. Make sure you mention your role too.")
     @commands.guild_only()
@@ -264,7 +278,10 @@ class EmojiManager(commands.Cog):
             title=f"**__Successfully locked__** {emo}", description=f"*Only these roles can access this emoji:*\n\n{rolelist}\n\n\nTo unlock:\ntype: `etunlock` {emo}")
         em.set_footer(icon_url=ctx.author.avatar.url,
                       text=f"Locked by {ctx.author}")
-        await ctx.channel.send(embed=em)
+        view = ui.View()
+        view.add_item(ui.Button(label="vote", emoji="<:discordbotlist:880695425710063646>", style=discord.ButtonStyle.url,
+                      url="https://top.gg/bot/875861419801862165/vote/"))
+        await ctx.channel.send(embed=em, view = view)
 
     @lock.error
     async def lock_error(self, ctx, error):
@@ -315,7 +332,7 @@ class EmojiManager(commands.Cog):
         emby.set_footer(icon_url=ctx.author.avatar.url,
                         text=f"Requested by {ctx.author}")
 
-        view = bv.DeleteButton()
+        view = bv.DeleteButton(ctx)
         view.add_item(ui.Button(label="Emoji Link",
                       style=discord.ButtonStyle.url, url=url))
 

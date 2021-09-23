@@ -56,6 +56,8 @@ class MyHelpCommand(commands.MinimalHelpCommand):
 
         channel = self.get_destination()
         view = bv.HelpPageButton(self.context, embed1, embed2)
+        
         view.page_one.disabled = True
 
         msg = await channel.send(embed=embed1, view=view)
+        view.message = msg

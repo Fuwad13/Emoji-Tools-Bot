@@ -8,12 +8,12 @@ import aiohttp
 
 class HelpPageButton(discord.ui.View):
     def __init__(self, ctx, emb1, emb2):
-        super().__init__(timeout=60.0)
+        super().__init__(timeout=120.0)
         self.page1 = emb1
         self.page2 = emb2
         self.ctx = ctx
         self.add_item(discord.ui.Button(label="Invite", emoji='<:website:877638561501950003>', style=discord.ButtonStyle.green,
-                                        url="https://discord.com/api/oauth2/authorize?client_id=875861419801862165&permissions=1074121792&redirect_uri=https%3A%2F%2Fdiscord.com%2Fapi%2Foauth2%2Fauthorize%3Fclient_id%3D875861419801862165%26permissions%3D1074064448%26scope%3Dbot&scope=bot%20applications.commands"))
+                                        url="https://discord.com/oauth2/authorize?client_id=875861419801862165&permissions=138513009728&scope=bot%20applications.commands"))
 
         self.add_item(discord.ui.Button(label="Vote", emoji='<:discordbotlist:880695425710063646>', style=discord.ButtonStyle.green,
                                         url="https://top.gg/bot/875861419801862165/vote/"))
@@ -41,9 +41,14 @@ class HelpPageButton(discord.ui.View):
         self.page_one.disabled = False
         await interaction.message.edit(embed=self.page2, view = self)
 
-    # async def on_timeout(self):
-    #   for item in self.children:
-    #     item.disabled = True
+    async def on_timeout(self):
+        c = 0
+        for item in self.children:
+            item.disabled = True
+            c+=1
+            if c==2:
+                break
+        await self.message.edit(view = self) 
 
     
 class MyMenuPages(ui.View, menus.MenuPages):
@@ -71,6 +76,11 @@ class MyMenuPages(ui.View, menus.MenuPages):
     async def interaction_check(self, interaction):
         """Only allow the author that invoke the command to be able to use the interaction"""
         return interaction.user == self.ctx.author
+
+    async def on_timeout(self):
+        for i in self.children:
+            i.disabled = True
+        await self.message.edit(view = self)
 
     
     
@@ -132,9 +142,25 @@ class EmojiLinkSource(menus.ListPageSource):
 
 
 class DeleteButton(discord.ui.View):
-    def __init__(self):
+    def __init__(self, ctx):
         super().__init__(timeout= 60)
+        self.ctx = ctx
 
-    @ui.button(emoji='<:redtick:880695424510476288>', style=discord.ButtonStyle.red)
+    async def interaction_check(self, intr):
+        
+        return self.ctx.author == intr.user
+    async def on_timeout(self):
+        self.children[0].disabled= True
+        await self.message.edit(view = self)
+
+    @ui.button(emoji='<:trashcan:890607299545141358>', style=discord.ButtonStyle.red)
     async def on_deletee(self, button, interaction):
         await self.message.delete()
+
+class SupportServer(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout= 180)
+
+        self.add_item(ui.Button(label="Support server",
+                            emoji="<:Emoji_tools:883769038600294421>", style=discord.ButtonStyle.url, url="https://discord.gg/zZPf2BUkHm"))
+       
