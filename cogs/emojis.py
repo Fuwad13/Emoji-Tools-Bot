@@ -228,7 +228,7 @@ class EmojiManager(commands.Cog):
         elif isinstance(error, discord.ext.commands.BotMissingPermissions):
             await ctx.channel.send(f"{self.bot.user.mention} needs `Manage Emojis` permission to execute this command!")
         elif isinstance(error, discord.ext.commands.CommandOnCooldown):
-            await ctx.channel.send(f"This command is on cooldown (to prevent the bot from being rate-limited)\n Please retry after {error.retry_after:.2f} seconds")
+            await ctx.channel.send(f"This command is on cooldown (to prevent the bot from being rate-limited)\n Please retry after {error.retry_after:.2f} seconds", view = bv.SupportServer())
         elif isinstance(error, discord.ext.commands.errors.BadArgument):
             await ctx.channel.send("**Please put emojis after** `etdeletemany`")
         elif isinstance(error, discord.ext.commands.errors.MissingRequiredArgument):

@@ -56,7 +56,8 @@ class EmojiSearcher(commands.Cog):
             await ctx.send("Couldn't find anything , sorry")
 
         else :
-            await ctx.send(f"Something went wrong `{error}`")
+            await ctx.send(f"Something went wrong, can't find anything about that.")
+            print(error)
         
 
 
