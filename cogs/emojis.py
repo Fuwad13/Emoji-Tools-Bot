@@ -55,6 +55,7 @@ class EmojiManager(commands.Cog):
     @commands.guild_only()
     @commands.bot_has_permissions(manage_emojis=True)
     @commands.has_permissions(manage_emojis=True)
+    @commands.cooldown(1, 3, type=BucketType.user)
     async def addurl(self, ctx, url: str, name: str = None):
         aurl = url
         if not name:
@@ -79,6 +80,8 @@ class EmojiManager(commands.Cog):
             await ctx.channel.send(f"{ctx.author.mention} You need `manage_emojis` permission to use this command!")
         elif isinstance(error, discord.ext.commands.BotMissingPermissions):
             await ctx.channel.send("Please make sure I have the `Manage Emojis` permission!")
+        elif isinstance(error, discord.ext.commands.CommandOnCooldown):
+            await ctx.channel.send(f"This command has a cooldown of 3 sec. Please try again after `{error.retry_after:.2f}` seconds")
 
         else:
             await ctx.channel.send(f"`ERROR`: {error}")
@@ -87,6 +90,7 @@ class EmojiManager(commands.Cog):
     @commands.guild_only()
     @commands.bot_has_permissions(manage_emojis=True)
     @commands.has_permissions(manage_emojis=True)
+    @commands.cooldown(1, 3, type=BucketType.user)
     async def addfile(self, ctx, name: str = None):
         try:
             async with ctx.channel.typing():
@@ -116,37 +120,39 @@ class EmojiManager(commands.Cog):
             await ctx.channel.send("Please make sure I have the `Manage Emojis` permission!")
         elif isinstance(error, discord.ext.commands.CommandError):
             await ctx.channel.send(f"`ERROR` : {error}")
+        elif isinstance(error, discord.ext.commands.CommandOnCooldown):
+            await ctx.channel.send(f"This command has a cooldown of 3 sec. Please try again after `{error.retry_after:.2f}` seconds")
 
-    @commands.command(name="addmany", aliases=["addm", "createmany"], brief="Adds multiple emojis at once! Currently upto 5 emojis at once[cooldown = 10 sec.]", help="Add multiple emojis at once in your server. Currently it can add 5 emojis at once to prevent rate-limits of discord![cooldown = 10 sec]", description="This command can be used to add emojis at a faster rate. It has a cooldown of 10 seconds though (to prevent the bot from being rate-limited)")
+    @commands.command(name="addmany", aliases=["addm", "createmany"], brief="Adds multiple emojis at once! Currently upto 5 emojis at once[cooldown = 15 sec.]", help="Add multiple emojis at once in your server. Currently it can add 5 emojis at once to prevent rate-limits of discord![cooldown = 15 sec]", description="This command can be used to add emojis at a faster rate. It has a cooldown of 15 seconds though (to prevent the bot from being rate-limited)")
     @commands.guild_only()
     @commands.bot_has_permissions(manage_emojis=True)
     @commands.has_permissions(manage_emojis=True)
-    @commands.cooldown(1, 10, type=commands.BucketType.guild)
+    @commands.cooldown(1, 15, type=commands.BucketType.guild)
     async def addmany(self, ctx, emojis: commands.Greedy[discord.PartialEmoji]):
         
         if emojis:
-            async with ctx.channel.typing():
-                emojilist = []
-                c = 0
-                for x in emojis:
-                    url = f"{x.url}"
+            await ctx.channel.trigger_typing()
+            emojilist = []
+            c = 0
+            for x in emojis:
+                url = f"{x.url}"
 
-                    naam = x.name
+                naam = x.name
 
-                    async with aiohttp.ClientSession() as session:
-                        async with session.get(url) as response:
-                            img = await response.read()
-                    cm = await ctx.guild.create_custom_emoji(name=naam, image=img)
-                    x = str(cm)
-                    emojilist.append(x)
-                    await asyncio.sleep(1)
-                    c += 1
-                    if c == 5:
-                        break
-                if len(emojilist) != 0:
-                    await ctx.channel.send(f"Successfully created these emojis {emojilist}")
-                    # colch = self.bot.get_channel(885013467587825686)
-                    # await colch.send(f"Added these  {emojilist} in server :{ctx.guild.name} with id {ctx.guild.id}")
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(url) as response:
+                        img = await response.read()
+                cm = await ctx.guild.create_custom_emoji(name=naam, image=img)
+                x = str(cm)
+                emojilist.append(x)
+                await asyncio.sleep(1)
+                c += 1
+                if c == 5:
+                    break
+            if len(emojilist) != 0:
+                await ctx.channel.send(f"Successfully created these emojis {emojilist}")
+                # colch = self.bot.get_channel(885013467587825686)
+                # await colch.send(f"Added these  {emojilist} in server :{ctx.guild.name} with id {ctx.guild.id}")
         elif not emojis:
             await ctx.send("`Something went wrong, Did you use the command correctly?`\ntype `ethelp addmany` to learn more")
             
@@ -177,6 +183,7 @@ class EmojiManager(commands.Cog):
     @commands.guild_only()
     @commands.bot_has_permissions(manage_emojis=True)
     @commands.has_permissions(manage_emojis=True)
+    @commands.cooldown(1, 3, type=BucketType.user)
     async def delete(self, ctx, emoji: discord.Emoji):
         emoname = emoji.name
         await emoji.delete()
@@ -194,6 +201,8 @@ class EmojiManager(commands.Cog):
             await ctx.channel.send("**Please put an emoji after** `etdelete` to delete the emoji\nExample: `etdelete <emoji_to_be_deleted> `")
         elif isinstance(error, discord.ext.commands.errors.MissingRequiredArgument):
             await ctx.channel.send("**Please put an emoji after ** `etdeletemany` to delete!")
+        elif isinstance(error, discord.ext.commands.CommandOnCooldown):
+            await ctx.channel.send(f"This command has a cooldown of 3 sec. Please try again after `{error.retry_after:.2f}` seconds")
         else:
             await ctx.send(f"Error: `{error}`", view = bv.SupportServer())
 
@@ -238,6 +247,7 @@ class EmojiManager(commands.Cog):
     @commands.guild_only()
     @commands.bot_has_permissions(manage_emojis=True)
     @commands.has_permissions(manage_emojis=True)
+    @commands.cooldown(1, 3, type=BucketType.user)
     async def rename(self, ctx, emoji: discord.Emoji, new_name):
         emid = emoji.id
         await emoji.edit(name=new_name)
@@ -256,6 +266,8 @@ class EmojiManager(commands.Cog):
             await ctx.channel.send("**Please put an emoji and the name after **`etrename`** to rename**\nExample: `etrename <emoji> new_name `")
         elif isinstance(error, discord.ext.commands.errors.MissingRequiredArgument):
             await ctx.channel.send("**Please put an emoji and the name after **`etrename`** to rename**\nExample: `etrename <emoji> new_name `")
+        elif isinstance(error, discord.ext.commands.CommandOnCooldown):
+            await ctx.channel.send(f"This command has a cooldown of 3 sec. Please try again after `{error.retry_after:.2f}` seconds")
         else:
             await ctx.send(f"Error: `{error}`", view = bv.SupportServer())
 
@@ -263,6 +275,7 @@ class EmojiManager(commands.Cog):
     @commands.guild_only()
     @commands.bot_has_permissions(manage_emojis=True)
     @commands.has_permissions(administrator=True)
+    @commands.cooldown(1, 3, type=BucketType.user)
     async def lock(self, ctx, emoji: discord.Emoji, roles: commands.Greedy[discord.Role]):
         emo = str(emoji)
         sr = discord.utils.get(ctx.guild.roles, name='Emoji Tools')
@@ -295,11 +308,14 @@ class EmojiManager(commands.Cog):
             await ctx.channel.send("**Error executing command**!!\nCorrect way: `etlock <emoji> <@roles>`")
         elif isinstance(error, discord.ext.commands.errors.MissingRequiredArgument):
             await ctx.channel.send("Missing required arguments! see `ethelp lock` for more")
+        elif isinstance(error, discord.ext.commands.CommandOnCooldown):
+            await ctx.channel.send(f"This command has a cooldown of 3 sec. Please try again after `{error.retry_after:.2f}` seconds")
 
     @commands.command(name="unlock", aliases=["ul"], brief="Unlocks an emoji for everyone that was locked before.(admins only command)", help="Unlock an emoji that was locked before . You need admin perms . If you don't have access to the emoji then use the emoji name to unlock.", description="This command can be used to unlock an emoji that was locked before. If you can't access the emoji then you may use the emoji name / id in the emoji parameter to unlock.")
     @commands.guild_only()
     @commands.bot_has_permissions(manage_emojis=True)
     @commands.has_permissions(administrator=True)
+    @commands.cooldown(1, 3, type=BucketType.user)
     async def unlock(self, ctx, emoji: discord.Emoji):
         emo = str(emoji)
         await emoji.edit(roles=[ctx.guild.default_role])
@@ -317,8 +333,11 @@ class EmojiManager(commands.Cog):
             await ctx.channel.send("**Error executing command**!!\nCorrect way: `etunlock <emoji>`")
         elif isinstance(error, discord.ext.commands.errors.MissingRequiredArgument):
             await ctx.channel.send("Missing required arguments! see `ethelp unlock` for more")
+        elif isinstance(error, discord.ext.commands.CommandOnCooldown):
+            await ctx.channel.send(f"This command has a cooldown of 3 sec. Please try again after `{error.retry_after:.2f}` seconds")
 
     @commands.command(name="emoji", aliases=["moji", "emote", "emojiinfo", "download"], brief="Shows information about the an emoji.", help="Shows information (name, id, creation time, link etc) about the emoji provided. Useful when you want to download any emoji.", description="Get emoji name , id, time of creation etc in an embed.")
+    @commands.cooldown(1, 3, type=BucketType.user)
     async def emoji(self, ctx, emoji: typing.Union[discord.PartialEmoji, discord.Emoji]):
         url = emoji.url
         name = f"`name:` **{emoji.name}**"
@@ -341,7 +360,9 @@ class EmojiManager(commands.Cog):
 
     @emoji.error
     async def emoji_error(self, ctx, error):
-        if isinstance(error, discord.ext.commands.CommandError):
+        if isinstance(error, discord.ext.commands.CommandOnCooldown):
+            await ctx.channel.send(f"This command has a cooldown of 3 sec. Please try again after `{error.retry_after:.2f}` seconds")
+        elif isinstance(error, discord.ext.commands.CommandError):
             emob = discord.Embed(
                 title="`Correct syntax:` etemoji <emoji>  ", color=0x2F3136)
             await ctx.channel.send(content=f"`Emoji not found`", embed=emob)

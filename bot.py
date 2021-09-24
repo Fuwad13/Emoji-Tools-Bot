@@ -58,7 +58,7 @@ def get_prefix(bot, message):
 
 
 intents = discord.Intents(messages=True, guilds=True,
-                          reactions=True)
+                          reactions=True, emojis = True)
 
 bot = commands.AutoShardedBot(command_prefix=get_prefix, intents=intents, case_insensitive = True)
 
@@ -87,10 +87,7 @@ async def on_guild_join(guild):
     mc = guild.member_count
     em = discord.Embed(
         title=f"Joined {name} ({idd})", description=f"emoji count: {ec}\nmember count: {mc}", color=0x2F3136)
-    try:
-        em.set_footer(text=f"{name}", icon_url=guild.icon)
-    except:
-        pass
+    #failed here
     channel = bot.get_channel(878420596168462386)
     await channel.send(embed=em)
     channels = await guild.fetch_channels()

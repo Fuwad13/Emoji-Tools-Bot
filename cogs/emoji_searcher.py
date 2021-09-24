@@ -34,7 +34,7 @@ class EmojiSearcher(commands.Cog):
 
         return final_list
 
-    @commands.command(name="search", aliases=["find", "srch"], brief="Searches for emojis by the name provided", help="Search for an emoji by name from online. Choose from the search result to add to your server", description="hi")
+    @commands.command(name="search", aliases=["find", "srch"], brief="Searches for emojis by the name provided(cooldown = 15 sec)", help="Search for an emoji by name from online. Choose from the search result to add to your server", description="Search for an emoji by name from online. Choose from the search result to add to your server. This command will be available to voters only")
     @commands.guild_only()
     @commands.cooldown(1,15, type = commands.BucketType.user)
     
