@@ -45,11 +45,11 @@ ALL_EXTENSIONS = [
 
 def get_prefix(bot, message):
 
-    prefixes = [">"]
+    prefixes = ["et"]
 
     if not message.guild:
         # Only allow ? to be used in DMs
-        return '>'
+        return 'et'
 
     # If we are in a guild, we allow for the user to mention us or use any of the prefixes in our list.
     return commands.when_mentioned_or(*prefixes)(bot, message)
@@ -106,11 +106,29 @@ async def on_guild_remove(guild):
     channel = bot.get_channel(878420596168462386)
     name = guild.name
     await channel.send(f"Left {name} : {guild.id}")
+
+@bot.event
+async def on_command_error(ctx,error):
+    if isinstance(error, commands.CommandInvokeError):
+        
+        if isinstance(error.original, discord.HTTPException):
+            print(error)
+            try:
+                await ctx.author.send("I don't have `EMBED LINK / SEND MESSAGES` permission in the command invokation channel. Please give me the required perms in that channel.")
+            except Exception as e:
+                await ctx.message.add_reaction('<:missing_required_permissions:880695420593000468')
+                print(f"{e}")
+        else:
+            print(f"{error.original}\n{ctx.message.content}")
+    # else:
+    #     print(f"{error}")
+
 # tasks ----->>>
 
 
-@tasks.loop(seconds=60)
+@tasks.loop(seconds=60, count = 2)
 async def activity_change_():
+    print("1")
     await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.listening, name=f"ethelp  |  {len(bot.users)} users"))
 
 

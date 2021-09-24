@@ -12,7 +12,7 @@ class MyHelpCommand(commands.MinimalHelpCommand):
                 'cooldown': commands.CooldownMapping.from_cooldown(1, 3.0, commands.BucketType.member),
                 'help': 'Shows help about the bot, a command, or a category',
                 'brief': 'run help [command_name] to get more information about the command',
-                'aliases': ["commands", "helo", "hel", "hell"],
+                'aliases': ["commands", "helo", "hel", "hell","h"],
             }, verify_checks=False, show_hidden=False
         )
 
@@ -20,12 +20,35 @@ class MyHelpCommand(commands.MinimalHelpCommand):
         if isinstance(error, commands.CommandInvokeError):
             # Ignore missing permission errors
             if isinstance(error.original, discord.HTTPException) and error.original.code == 50013:
-                return
+                print(error)
+                try:
+                    await ctx.author.send("I don't have `EMBED LINK / SEND MESSAGES` permission in the command invokation channel. Please give me the required perms in that channel.")
+                except Exception as e:
+                    await ctx.message.add_reaction('<:missing_required_permissions:880695420593000468')
+                    print(f"{e}")
+                    
+                
+            else:
 
-            await ctx.send(str(error.original))
+                await ctx.send(str(error.original))
+                
+
+    
 
     def get_command_signature(self, command):
         return f"{self.context.clean_prefix}{command.qualified_name} {command.signature}   "
+
+    async def send_command_help(self, command):
+        sig = self.get_command_signature(command)
+        exm = command.extras
+        embed = discord.Embed(
+            title=f"**{command.qualified_name}**", description=f"{command.help}", color=0x2F3136, timestamp = self.context.message.created_at)
+        embed.add_field(
+            name="Usage", value=f"**{sig}**\n\n[Click here to see example]({exm})", inline=False)
+        embed.set_author(name = "Command Help")
+        embed.add_field(name = "Aliases", value = f"**{' , '.join(command.aliases)}**")
+        embed.set_footer(icon_url=self.context.me.avatar.url, text = "Emoji Tools")
+        await self.context.channel.send(embed = embed)
 
     async def send_bot_help(self, mapping):
         embed1 = discord.Embed(title="Help page[1/2]", color=0x2F3136, timestamp=self.context.message.created_at,
@@ -57,10 +80,13 @@ class MyHelpCommand(commands.MinimalHelpCommand):
 
         channel = self.get_destination()
         embed1.set_author(icon_url=self.context.me.avatar.url,
-                          name="Emoji Tools")
+                          name="Emoji Tools", url="https://top.gg/bot/875861419801862165/vote/")
         embed2.set_author(icon_url=self.context.me.avatar.url,
-                          name="Emoji Tools")
+                          name="Emoji Tools", url="https://top.gg/bot/875861419801862165/vote/")
+        embed1.set_footer(text="Bot made with love by SHERLOCK#7309")
+        embed2.set_footer(text="Bot made with love by SHERLOCK#7309")
         view = bv.HelpPageButton(self.context, embed1, embed2)
+
 
         view.page_one.disabled = True
 
