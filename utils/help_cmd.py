@@ -5,6 +5,7 @@ from utils import buttons_and_view as bv
 
 class MyHelpCommand(commands.MinimalHelpCommand):
     def __init__(self):
+        
 
         super().__init__(
             command_attrs={
@@ -55,8 +56,12 @@ class MyHelpCommand(commands.MinimalHelpCommand):
                         name=f"<:valid:877700255439798303> {cmd.split(' ',1)[0]}", value=f"{cmd.split(' ',1)[1]}")
 
         channel = self.get_destination()
+        embed1.set_author(icon_url=self.context.me.avatar.url,
+                          name="Emoji Tools")
+        embed2.set_author(icon_url=self.context.me.avatar.url,
+                          name="Emoji Tools")
         view = bv.HelpPageButton(self.context, embed1, embed2)
-        
+
         view.page_one.disabled = True
 
         msg = await channel.send(embed=embed1, view=view)

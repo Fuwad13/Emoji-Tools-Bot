@@ -10,7 +10,7 @@ import os
 from discord.ext import commands, tasks
 from discord.ext.commands import BucketType
 from dotenv import load_dotenv
-from utils import help
+from utils import help_cmd
 
 load_dotenv()  # take environment variables from .env.
 
@@ -22,7 +22,7 @@ TOKEN = os.getenv("TOKEN")
 COLL_CHANNEL = 885013467587825686
 UPTIME_DICT = {"uts": ""}
 # ------------extensions --------------------------
-#emoji searcher unstable
+# emoji searcher unstable
 intital_extensions = [
     "cogs.emojis",
     "cogs.public_commands",
@@ -58,9 +58,10 @@ def get_prefix(bot, message):
 
 
 intents = discord.Intents(messages=True, guilds=True,
-                          reactions=True, emojis = True)
+                          reactions=True, emojis=True)
 
-bot = commands.AutoShardedBot(command_prefix=get_prefix, intents=intents, case_insensitive = True)
+bot = commands.AutoShardedBot(command_prefix=get_prefix, intents=intents,
+                              case_insensitive=True, strip_after_prefix=True, max_messages=None)
 
 
 if __name__ == "__main__":
@@ -74,7 +75,7 @@ if __name__ == "__main__":
 async def on_ready():
     UPTIME_DICT["uts"] = str(int(time.time()))
     bot.uptime = int(UPTIME_DICT["uts"])
-    await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.listening, name=f"ethelp  |  {len(bot.users)} users"))
+    activity_change_.start()
     print(f'logged in as {bot.user}')
     bot.get_command("jishaku").hidden = True
 
@@ -87,7 +88,7 @@ async def on_guild_join(guild):
     mc = guild.member_count
     em = discord.Embed(
         title=f"Joined {name} ({idd})", description=f"emoji count: {ec}\nmember count: {mc}", color=0x2F3136)
-    #failed here
+    # failed here
     channel = bot.get_channel(878420596168462386)
     await channel.send(embed=em)
     channels = await guild.fetch_channels()
@@ -106,6 +107,11 @@ async def on_guild_remove(guild):
     name = guild.name
     await channel.send(f"Left {name} : {guild.id}")
 # tasks ----->>>
+
+
+@tasks.loop(seconds=60)
+async def activity_change_():
+    await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.listening, name=f"ethelp  |  {len(bot.users)} users"))
 
 
 # dev essential commands
@@ -170,7 +176,6 @@ async def reloadall(ctx):
     bot.get_command("jishaku").hidden = True
 
 
-
 @reloadall.error
 async def reloadallerror(ctx, error):
     await ctx.channel.send(f"`ERROR` : `{error}`")
@@ -195,7 +200,7 @@ async def reloaderror(ctx, error):
     await ctx.channel.send(f"`ERROR` : `{error}`")
 
 
-@bot.command(name = "hidecmd", hidden = True)
+@bot.command(name="hidecmd", hidden=True)
 @commands.is_owner()
 async def _hidecmd(ctx):
     bot.get_command("jishaku").hidden = True
@@ -204,9 +209,7 @@ async def _hidecmd(ctx):
 
 # ----------Help Command ------------------
 
-bot.help_command = help.MyHelpCommand()
-
-
+bot.help_command = help_cmd.MyHelpCommand()
 
 
 bot.run(TOKEN)
