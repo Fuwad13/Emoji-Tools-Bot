@@ -129,7 +129,7 @@ async def on_command_error(ctx,error):
 @tasks.loop(seconds=60, count = 2)
 async def activity_change_():
     print("1")
-    await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.listening, name=f"ethelp  |  {len(bot.users)} users"))
+    await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.listening, name=f"ethelp"))
 
 
 # dev essential commands
