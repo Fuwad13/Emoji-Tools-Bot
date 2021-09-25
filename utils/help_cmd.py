@@ -52,9 +52,9 @@ class MyHelpCommand(commands.MinimalHelpCommand):
 
     async def send_bot_help(self, mapping):
         embed1 = discord.Embed(title="Help page[1/2]", color=0x2F3136, timestamp=self.context.message.created_at,
-                               description="```<>          ~ required arguments\n[]          ~ optional arguments\n[emojis]... ~ emojis with spaces between```")
+                               description="Type `ethelp [command_name]` to know more about a command!```<>          ~ required arguments\n[]          ~ optional arguments\n[emojis]... ~ emojis with spaces between```")
         embed2 = discord.Embed(title="Help page[2/2]", color=0x2F3136, timestamp=self.context.message.created_at,
-                               description="```<> ~ required arguments\n[] ~ optional arguments\n[roles]... ~ @roles mentioned with spaces between```")
+                               description="Type `ethelp [command_name]` to know more about a command!```<>      ~ required arguments\n[]      ~ optional arguments\n[roles]... ~ @roles mentioned with spaces between```")
         # if self.context.author.id == 428812756456570882:
         #     self.show_hidden = True
 

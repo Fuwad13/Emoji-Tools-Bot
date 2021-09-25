@@ -189,7 +189,7 @@ async def reloadall(ctx):
             tt = f"{str(tick)} `{e.split('cogs.')[-1]}`\n"
             success_s += tt
     em = discord.Embed(
-        title="Success!", description=f"These cogs were loaded successfully!\n{success_s}", color=0x2F3136)
+        title="Success!", description=f"Successfully reloaded these cogs!\n{success_s}", color=0x2F3136)
     await ctx.channel.send(embed=em)
     bot.get_command("jishaku").hidden = True
 

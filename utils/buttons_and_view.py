@@ -20,7 +20,7 @@ class HelpPageButton(discord.ui.View):
 
     async def interaction_check(self, intr):
         if not self.ctx.author == intr.user:
-          await intr.response.send_message(f"Only {self.ctx.author.mention} can use this button", ephemeral=True)
+          await intr.response.send_message(f"Only {self.ctx.author.mention} can use these buttons, type `ethelp` to get yours", ephemeral=True)
         return self.ctx.author == intr.user
 
     # async def on_error(self, error, item, interaction):
@@ -40,13 +40,18 @@ class HelpPageButton(discord.ui.View):
         button.disabled = True
         self.page_one.disabled = False
         await interaction.message.edit(embed=self.page2, view = self)
+    
+    @discord.ui.button(emoji='\U0001f4f0', style = discord.ButtonStyle.green, label = "Updates")
+    async def updates_new(self, button, interaction):
+        up_emb = discord.Embed(title="What's new? [v 1.1]", description="`1.` Help command embed looks better now\n`2.` Added cooldown to commands that adds emojis. (to prevent spam and abuse)\n`3.` Exclusive voter command `etsearch` added, you can search for emojis using this command.\n`4.` `etemoji` command now has a delete and a emoji link button\n`5.` Sticker commands are coming soon, stay tuned\n**And please vote for me**", color=0x2F3136)
+        await interaction.message.edit(embed = up_emb)
 
     async def on_timeout(self):
         c = 0
         for item in self.children:
             item.disabled = True
             c+=1
-            if c==2:
+            if c==3:
                 break
         await self.message.edit(view = self) 
 
