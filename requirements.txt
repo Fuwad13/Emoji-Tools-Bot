@@ -6,4 +6,4 @@ python-dotenv
 bs4
 git+https://github.com/Rapptz/discord-ext-menus
 humanize
-topgg
+git+https://github.com/top-gg/python-sdk/
