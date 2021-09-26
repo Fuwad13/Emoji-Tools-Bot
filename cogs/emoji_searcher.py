@@ -42,10 +42,14 @@ class EmojiSearcher(commands.Cog):
         start_time = time.time()
         x = name.replace(" ", "+")
         el = await self.get_emojis(x)
+        add_button_ = False
+        if ctx.author.guild_permissions.manage_emojis:
+            add_button_ = True
+        
         
         end_time = time.time()
         formatter = bv.EmojiLinkSource(el)
-        menu = bv.MyMenuPages(formatter, delete_message_after=True)
+        menu = bv.MyMenuPages(formatter, delete_message_after=True, add_button_ = add_button_)
         await menu.start(ctx)
 
     @search.error

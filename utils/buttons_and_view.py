@@ -6,6 +6,7 @@ from discord.ext import menus
 from itertools import starmap, chain
 import aiohttp
 
+
 class HelpPageButton(discord.ui.View):
     def __init__(self, ctx, emb1, emb2):
         super().__init__(timeout=120.0)
@@ -57,13 +58,14 @@ class HelpPageButton(discord.ui.View):
 
     
 class MyMenuPages(ui.View, menus.MenuPages):
-    def __init__(self, source, *, delete_message_after=False):
+    def __init__(self, source, *, delete_message_after=False, add_button_ = False):
         super().__init__(timeout=120)
         self._source = source
         self.current_page = 0
         self.ctx = None
         self.message = None
         self.delete_message_after = delete_message_after
+        self.add_button_ = add_button_
 
     async def start(self, ctx, *, channel=None, wait=False):
         # We wont be using wait/channel, you can implement them yourself. This is to match the MenuPages signature.
@@ -112,6 +114,13 @@ class MyMenuPages(ui.View, menus.MenuPages):
     async def last_page(self, button, interaction):
         await self.show_page(self._source.get_max_pages() - 1)
 
+    if self.add_button_:
+        @ui.button(emoji='<:download:891769678865780746>', label = "Add to server", style = discord.ButtonStyle.green)
+        async def add_to_server(self, button, interaction):
+            
+
+            await interaction.response.send_message(f"The emoji you selected will be added to your server, are you sure?", ephemeral = True)
+
 
 class EmojiLinkSource(menus.ListPageSource):
     def __init__(self, data):
@@ -152,6 +161,8 @@ class DeleteButton(discord.ui.View):
         self.ctx = ctx
 
     async def interaction_check(self, intr):
+        if not intr.user == self.ctx.author:
+            await intr.response.send_message(f"Sorry, only {self.ctx.author.name} can use this button", ephemeral = True)
         
         return self.ctx.author == intr.user
     async def on_timeout(self):
