@@ -11,6 +11,7 @@ from discord.ext import commands, tasks
 from discord.ext.commands import BucketType
 from dotenv import load_dotenv
 from utils import help_cmd
+import topgg
 
 load_dotenv()  # take environment variables from .env.
 
@@ -37,7 +38,8 @@ ALL_EXTENSIONS = [
     "cogs.public_commands",
     "cogs.error_handler",
     "cogs.utility",
-    "jishaku"
+    "jishaku",
+    "cogs.bottumgg"
 ]
 
 # -----prefixes------
@@ -70,6 +72,10 @@ if __name__ == "__main__":
 
 # ==== events ==========
 
+bot.topgg_webhook = topgg.WebhookManager(
+    bot).dbl_webhook("/dblwebhook", "emoji_tools")
+
+bot.topgg_webhook.run(5000)
 
 @bot.event
 async def on_ready():
@@ -107,10 +113,11 @@ async def on_guild_remove(guild):
     name = guild.name
     await channel.send(f"Left {name} : {guild.id}")
 
+
 @bot.event
-async def on_command_error(ctx,error):
+async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandInvokeError):
-        
+
         if isinstance(error.original, discord.HTTPException):
             print(error)
             try:
@@ -126,7 +133,7 @@ async def on_command_error(ctx,error):
 # tasks ----->>>
 
 
-@tasks.loop(seconds=60, count = 2)
+@tasks.loop(seconds=60, count=2)
 async def activity_change_():
     print("1")
     await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.listening, name=f"ethelp"))
