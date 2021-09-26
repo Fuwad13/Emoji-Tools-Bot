@@ -72,12 +72,6 @@ class MyMenuPages(ui.View, menus.MenuPages):
         await self._source._prepare_once()
         self.ctx = ctx
         self.message = await self.send_initial_message(ctx, ctx.channel)
-        if self.add_button_:
-
-        @ui.button(emoji='<:download:891769678865780746>', label="Add to server", style=discord.ButtonStyle.green)
-        async def add_to_server(self, button, interaction):
-
-            await interaction.response.send_message(f"The emoji you selected will be added to your server, are you sure?", ephemeral=True)
 
     async def _get_kwargs_from_page(self, page):
         """This method calls ListPageSource.format_page class"""
