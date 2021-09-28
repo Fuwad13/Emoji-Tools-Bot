@@ -130,7 +130,7 @@ class PublicCog(commands.Cog):
         if flag:
 
             embed.add_field(name="<:greentick:880695423516430336> Used slots:",
-                            value=f"`Emoji  :` **{e_used_slots}** slots *({unavailable} unavalable)*\n      >{statc} static emojis\n     >{animc} animated emojis\n`Sticker :` **{s_used_slots}** slots", inline=True)
+                            value=f"`Emoji  :` **{e_used_slots}** slots *({unavailable} unavailable)*\n      >{statc} static emojis\n     >{animc} animated emojis\n`Sticker :` **{s_used_slots}** slots", inline=True)
             embed.add_field(name="<:greentick:880695423516430336> Remaining slots:",
                             value=f"`Emoji  :` No available slots\n`Sticker :` {max_stickers-s_used_slots} slots left", inline=True)
         else:

@@ -339,10 +339,11 @@ class EmojiManager(commands.Cog):
     @commands.cooldown(1, 3, type=BucketType.user)
     async def emoji(self, ctx, emoji: typing.Union[discord.PartialEmoji, discord.Emoji]):
         url = emoji.url
-        name = f"`name:` **{emoji.name}**"
-        t = f"`created at:` <t:{int(emoji.created_at.timestamp())}>"
-        emid = f"`id:` {emoji.id}"
-        text = f"{name}\n{emid}\n{t}"
+        name = f"`name       :` **{emoji.name}**"
+        t = f"`created at :` <t:{int(emoji.created_at.timestamp())}>"
+        emid = f"`id         :` {emoji.id}"
+        guild = f"`guild      :` {emoji.guild.name if emoji.guild else 'i don\'t know'}"
+        text = f"{name}\n{emid}\n{t}\{guild}"
         emby = discord.Embed(title="Emoji Informations",
                              description=f"{text}\n`animated?:` {str(emoji.animated)}", timestamp=ctx.message.created_at, color=0x2F3136)
         emby.set_author(icon_url=self.bot.user.avatar.url, name="Emoji Tools")
