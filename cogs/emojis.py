@@ -342,10 +342,10 @@ class EmojiManager(commands.Cog):
         name = f"`name       :` **{emoji.name}**"
         t = f"`created at :` <t:{int(emoji.created_at.timestamp())}>"
         emid = f"`id         :` {emoji.id}"
-        guild = f"`guild      :` {emoji.guild.name if emoji.guild else 'idk'}"
-        text = f"{name}\n{emid}\n{t}\n{guild}"
+        #guild = f"`guild      :` {emoji.guild.name if emoji.guild else 'idk'}"
+        text = f"{name}\n{emid}\n{t}"
         emby = discord.Embed(title="Emoji Informations",
-                             description=f"{text}\n`animated?:` {str(emoji.animated)}", timestamp=ctx.message.created_at, color=0x2F3136)
+                             description=f"{text}\n`animated? :` {str(emoji.animated)}", timestamp=ctx.message.created_at, color=0x2F3136)
         emby.set_author(icon_url=self.bot.user.avatar.url, name="Emoji Tools")
         emby.set_image(url=url)
         emby.set_footer(text=f"Requested by {ctx.author}")
