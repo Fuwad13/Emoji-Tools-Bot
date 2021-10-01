@@ -18,7 +18,7 @@ class PublicCog(commands.Cog):
         
         ts = self.bot.uptime
         delt = int(time.time()) - ts
-        users = sum(g.member_count for g in bot.guilds)
+        users = sum(g.member_count for g in self.bot.guilds)
 
         em = discord.Embed(title="**Emoji Tools**",
                            description="Emoji Tools is made on the purpose to help you manage emojis in your server!", color=0x2F3136)
