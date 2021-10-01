@@ -18,11 +18,12 @@ class PublicCog(commands.Cog):
         
         ts = self.bot.uptime
         delt = int(time.time()) - ts
+        users = sum(g.member_count for g in bot.guilds)
 
         em = discord.Embed(title="**Emoji Tools**",
                            description="Emoji Tools is made on the purpose to help you manage emojis in your server!", color=0x2F3136)
         em.add_field(name="**Info**",
-                     value=f"`Bot created` : <t:{int(self.bot.user.created_at.timestamp())}:F>\n`Uptime` : Online since <t:{str(ts)}:f> | `{humanize.precisedelta(delt)}`\n`Servers` : {len(self.bot.guilds)} servers\n`Users` : 204000+ users \n", inline=False)
+                     value=f"`Bot created` : <t:{int(self.bot.user.created_at.timestamp())}:F>\n`Uptime` : Online since <t:{str(ts)}:f> | `{humanize.precisedelta(delt)}`\n`Servers` : {len(self.bot.guilds)} servers\n`Users` : {users} users \n", inline=False)
         em.add_field(name=f'{bug}Support server:',
                      value="Join the support server if you encounter any error while using the bot.\n https://discord.gg/zZPf2BUkHm")
 

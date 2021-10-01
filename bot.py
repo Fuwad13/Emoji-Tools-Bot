@@ -11,7 +11,18 @@ from discord.ext import commands, tasks
 from discord.ext.commands import BucketType
 from dotenv import load_dotenv
 from utils import help_cmd
-import topgg
+
+
+import logging
+
+logger = logging.getLogger('discord')
+logger.setLevel(logging.WARNING)
+handler = logging.FileHandler(
+    filename='discord.log', encoding='utf-8', mode='w')
+handler.setFormatter(logging.Formatter(
+    '%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+logger.addHandler(handler)
+
 
 load_dotenv()  # take environment variables from .env.
 
@@ -46,7 +57,7 @@ ALL_EXTENSIONS = [
 
 def get_prefix(bot, message):
 
-    prefixes = ["et"]
+    prefixes = ["et", "Et"]
 
     if not message.guild:
         # Only allow ? to be used in DMs
@@ -71,27 +82,7 @@ if __name__ == "__main__":
 
 # ==== events ==========
 
-bot.topgg_webhook = topgg.WebhookManager(
-    bot).dbl_webhook("/dblwebhook", "emoji_tools")
 
-bot.topgg_webhook.run(5000)
-
-
-@bot.event
-async def on_dbl_vote(data):
-    """An event that is called whenever someone votes for the bot on Top.gg."""
-    if data["type"] == "test":
-        # this is roughly equivalent to
-        # `return await on_dbl_test(data)` in this case
-        return bot.dispatch("dbl_test", data)
-
-    print(f"Received a vote:\n{data}")
-
-
-@bot.event
-async def on_dbl_test(data):
-    """An event that is called whenever someone tests the webhook system for your bot on Top.gg."""
-    print(f"Received a test vote:\n{data}")
 
 @bot.event
 async def on_ready():
@@ -101,6 +92,11 @@ async def on_ready():
     print(f'logged in as {bot.user}')
     bot.get_command("jishaku").hidden = True
 
+
+@bot.event
+async def on_command(ctx):
+    logger.warning(
+        f"COMMAND Invoked : {ctx.command} in {ctx.channel.id} by {ctx.author} ({ctx.author.id})")
 
 @bot.event
 async def on_guild_join(guild):
@@ -151,8 +147,9 @@ async def on_command_error(ctx, error):
 
 @tasks.loop(seconds=60, count=2)
 async def activity_change_():
+    users = sum(g.member_count for g in bot.guilds)
     print("1")
-    await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.listening, name=f"ethelp"))
+    await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.listening, name=f"ethelp | {users} users"))
 
 
 # dev essential commands
