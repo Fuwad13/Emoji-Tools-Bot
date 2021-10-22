@@ -23,7 +23,7 @@ class PublicCog(commands.Cog):
         em = discord.Embed(title="**Emoji Tools**",
                            description="Emoji Tools is made on the purpose to help you manage emojis in your server!", color=0x2F3136)
         em.add_field(name="**Info**",
-                     value=f"`Bot created` : <t:{int(self.bot.user.created_at.timestamp())}:F>\n`Uptime` : Online since <t:{str(ts)}:f> | `{humanize.precisedelta(delt)}`\n`Servers` : {len(self.bot.guilds)} servers\n`Users` : {users} users \n", inline=False)
+                     value=f"`Bot created` : <t:{int(self.bot.user.created_at.timestamp())}:F>\n`Uptime` : `{humanize.precisedelta(delt)}`\n`Last restart`: <t:{str(ts)}:f>\n`Servers` : {len(self.bot.guilds)} servers\n`Users` : {users} users \n`Emojis` : {len(self.bot.emojis)} Emojis!", inline=False)
         em.add_field(name=f'{bug}Support server:',
                      value="Join the support server if you encounter any error while using the bot.\n https://discord.gg/zZPf2BUkHm")
 

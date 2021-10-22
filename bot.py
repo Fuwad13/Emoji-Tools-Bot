@@ -37,6 +37,7 @@ UPTIME_DICT = {"uts": ""}
 # emoji searcher unstable
 intital_extensions = [
     "cogs.emojis",
+    "cogs.emoji_searcher",
     "cogs.public_commands",
     "cogs.error_handler",
     "cogs.utility",

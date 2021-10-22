@@ -44,7 +44,7 @@ class HelpPageButton(discord.ui.View):
     
     @discord.ui.button(emoji='\U0001f4f0', style = discord.ButtonStyle.green, label = "Updates")
     async def updates_new(self, button, interaction):
-        up_emb = discord.Embed(title="What's new? [v 1.1]", description="`1.` Help command embed looks better now\n`2.` Added cooldown to commands that adds emojis. (to prevent spam and abuse)\n`3.` Exclusive voter command `etsearch` added, you can search for emojis using this command.\n`4.` `etemoji` command now has a delete and a emoji link button\n`5.` Sticker commands are coming soon, stay tuned\n**And please vote for me**", color=0x2F3136)
+        up_emb = discord.Embed(title="What's new? [v 1.1]", description="`1.` Help command embed looks better now\n`2.` Added cooldown to commands that adds emojis. (to prevent spam and abuse)\n`3.` Exclusive voter command `etsearch` added, you can search for emojis using this command.\n`4.` `etemoji` command now has a delete and a emoji link button\n`5.` Sticker commands are coming soon, stay tuned\n⚠️Warning⚠️\nPlease don't try to add 25 or more emojis in under 10 minutes or fewer, it will result your guild to be ratelimited from adding more emojis! So, be patient and add emojis slowly\n**And please vote for me**", color=0x2F3136)
         await interaction.message.edit(embed = up_emb)
 
     async def on_timeout(self):
@@ -152,7 +152,7 @@ class EmojiLinkSource(menus.ListPageSource):
 
 class DeleteButton(discord.ui.View):
     def __init__(self, ctx):
-        super().__init__(timeout= 60)
+        super().__init__(timeout= 120)
         self.ctx = ctx
 
     async def interaction_check(self, intr):

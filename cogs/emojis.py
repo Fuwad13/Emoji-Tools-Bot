@@ -186,7 +186,7 @@ class EmojiManager(commands.Cog):
     async def delete(self, ctx, emoji: discord.Emoji):
         emoname = emoji.name
         await emoji.delete()
-        await ctx.channel.send(f"Deleted emoji :`{emoname}`")
+        await ctx.channel.send(f"Deleted emoji with name `{emoname}`")
 
     @delete.error
     async def delete_error(self, ctx, error):
@@ -225,7 +225,7 @@ class EmojiManager(commands.Cog):
             if len(demojilist) != 0:
                 await ctx.channel.send(f"Deleted these emojis: {demojilist}")
             elif len(demojilist) == 0:
-                await ctx.channel.send("Hey , did you forget to put spaces between the emojis? Try again!")
+                await ctx.channel.send("Something went wrong, if you think this is a bug then kindly report in the support server.!")
 
     @deletemany.error
     async def deletemany_error(self, ctx, error):
