@@ -92,25 +92,25 @@ class MyMenuPages(ui.View, menus.MenuPages):
     
     
 
-    @ui.button(emoji='<:before_fast_check:754948796139569224>', style=discord.ButtonStyle.blurple)
+    @ui.button(emoji='<:ff_left:904438274469273610>', style=discord.ButtonStyle.gray)
     async def first_page(self, button, interaction):
         await self.show_page(0)
 
-    @ui.button(emoji='<:before_check:754948796487565332>', style=discord.ButtonStyle.blurple)
+    @ui.button(emoji='<:previous:904438065420959784>', style=discord.ButtonStyle.gray)
     async def before_page(self, button, interaction):
         await self.show_checked_page(self.current_page - 1)
 
-    @ui.button(emoji='<:stop_check:754948796365930517>', style=discord.ButtonStyle.blurple)
+    @ui.button(emoji='<:stop:904438127530225724>', style=discord.ButtonStyle.gray)
     async def stop_page(self, button, interaction):
         self.stop()
         if self.delete_message_after:
             await self.message.delete(delay=0)
 
-    @ui.button(emoji='<:next_check:754948796361736213>', style=discord.ButtonStyle.blurple)
+    @ui.button(emoji='<:next:904437983988563988>', style=discord.ButtonStyle.gray)
     async def next_page(self, button, interaction):
         await self.show_checked_page(self.current_page + 1)
 
-    @ui.button(emoji='<:next_fast_check:754948796391227442>', style=discord.ButtonStyle.blurple)
+    @ui.button(emoji='<:ff_right:904438366899167232>', style=discord.ButtonStyle.gray)
     async def last_page(self, button, interaction):
         await self.show_page(self._source.get_max_pages() - 1)
 
