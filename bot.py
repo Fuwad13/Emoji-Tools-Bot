@@ -11,7 +11,7 @@ from discord.ext import commands, tasks
 from discord.ext.commands import BucketType
 from dotenv import load_dotenv
 from utils import help_cmd
-
+import topgg
 
 import logging
 
@@ -70,18 +70,23 @@ def get_prefix(bot, message):
 # --------Bot constructor------------------
 
 
+dbl_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijg3NTg2MTQxOTgwMTg2MjE2NSIsImJvdCI6dHJ1ZSwiaWF0IjoxNjMxMjc2MTI2fQ.4z6yIKdbJiGG4-J-rMfiWXGud4UmlWWLpMVjE7_ozcI"  # set this to your bot's Top.gg token
+
+
 intents = discord.Intents(messages=True, guilds=True,
                           reactions=True, emojis=True)
 
 bot = commands.AutoShardedBot(command_prefix=get_prefix, intents=intents,
                               case_insensitive=True, strip_after_prefix=True, max_messages=None)
 
+bot.topggpy = topgg.DBLClient(bot, dbl_token)
 
 if __name__ == "__main__":
     for e in intital_extensions:
         bot.load_extension(e)
 
 # ==== events ==========
+
 
 
 
@@ -144,14 +149,28 @@ async def on_command_error(ctx, error):
     #     print(f"{error}")
 
 # tasks ----->>>
-
+@tasks.loop(minutes=30)
+async def update_stats():
+    """This function runs every 30 minutes to automatically update your server count."""
+    try:
+        await bot.topggpy.post_guild_count()
+        channel = bot.get_channel(875426263546875925)
+        await channel.send(f"Posted server count ({bot.topggpy.guild_count})")
+        print(f"Posted server count ({bot.topggpy.guild_count})")
+    except Exception as e:
+        channel = bot.get_channel(875426263546875925)
+        await channel.send(f"Failed to post server count\n{e.__class__.__name__}: {e}")
+        print(f"Failed to post server count\n{e.__class__.__name__}: {e}")
 
 @tasks.loop(seconds=60, count=2)
 async def activity_change_():
     users = sum(g.member_count for g in bot.guilds)
     print("1")
     await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.listening, name=f"ethelp | {users} users"))
-
+async def run_once_when_ready():
+    await bot.wait_until_ready()
+    update_stats.start()
+    
 
 # dev essential commands
 @bot.command(name="loadcog", aliases=['lc', 'loadc'], hidden=True, brief="Loads a cog")
@@ -250,5 +269,5 @@ async def _hidecmd(ctx):
 
 bot.help_command = help_cmd.MyHelpCommand()
 
-
+bot.loop.create_task(run_once_when_ready())
 bot.run(TOKEN)
