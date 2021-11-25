@@ -94,7 +94,6 @@ if __name__ == "__main__":
 async def on_ready():
     UPTIME_DICT["uts"] = str(int(time.time()))
     bot.uptime = int(UPTIME_DICT["uts"])
-    activity_change_.start()
     print(f'logged in as {bot.user}')
     bot.get_command("jishaku").hidden = True
 
@@ -162,14 +161,12 @@ async def update_stats():
         await channel.send(f"Failed to post server count\n{e.__class__.__name__}: {e}")
         print(f"Failed to post server count\n{e.__class__.__name__}: {e}")
 
-@tasks.loop(seconds=60, count=2)
-async def activity_change_():
-    users = sum(g.member_count for g in bot.guilds)
-    print("1")
-    await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.listening, name=f"ethelp | {users} users"))
 async def run_once_when_ready():
     await bot.wait_until_ready()
     update_stats.start()
+    users = sum(g.member_count for g in bot.guilds)
+    await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.listening, name=f"ethelp | {users} users"))
+    print("changed presence")
     
 
 # dev essential commands
